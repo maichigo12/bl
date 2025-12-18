@@ -29,8 +29,8 @@ if 'character_data' not in st.session_state:
     st.session_state.character_data = None
 if 'image_prompt' not in st.session_state:
     st.session_state.image_prompt = None
-if 'image_url' not in st.session_state:
-    st.session_state.image_url = None
+# if 'image_url' not in st.session_state:
+#     st.session_state.image_url = None
 
 
 def generate_character_data():
@@ -73,18 +73,18 @@ def generate_character_data():
         return None
 
 
-def generate_image(prompt):
-    try:
-        with st.spinner("🖼️ 画像を生成中..."):
-            result = client.images.generate(
-                model="gpt-image-1",
-                prompt=prompt,
-                size="1024x1024"
-            )
-            return result.data[0].url
-    except Exception as e:
-        st.error(f"画像生成エラー: {e}")
-        return None
+# def generate_image(prompt):
+#     try:
+#         with st.spinner("🖼️ 画像を生成中..."):
+#             result = client.images.generate(
+#                 model="gpt-image-1",
+#                 prompt=prompt,
+#                 size="1024x1024"
+#             )
+#             return result.data[0].url
+#     except Exception as e:
+#         st.error(f"画像生成エラー: {e}")
+#         return None
 
 
 
@@ -93,19 +93,27 @@ col1, col2 = st.columns([1, 1])
 
 with col1:
     st.subheader("🎲 キャラクター生成")
-    
+
 if st.button("🚀 新しいキャラクターを生成", use_container_width=True, key="generate_btn"):
     character_data = generate_character_data()
     if character_data:
         st.session_state.character_data = character_data
-        
-        image_prompt = character_data.get("image_prompt", "")
-        st.session_state.image_prompt = image_prompt
-        
-        # ★ここで画像生成
-        st.session_state.image_url = generate_image(image_prompt)
-
+        st.session_state.image_prompt = character_data.get('image_prompt')
         st.success("✅ キャラクター生成完了！")
+
+    
+# if st.button("🚀 新しいキャラクターを生成", use_container_width=True, key="generate_btn"):
+#     character_data = generate_character_data()
+#     if character_data:
+#         st.session_state.character_data = character_data
+        
+#         image_prompt = character_data.get("image_prompt", "")
+#         st.session_state.image_prompt = image_prompt
+        
+#         # ★ここで画像生成
+#         st.session_state.image_url = generate_image(image_prompt)
+
+#         st.success("✅ キャラクター生成完了！")
 
 
 with col2:
@@ -127,12 +135,12 @@ with col2:
         st.markdown("**背景:**")
         st.markdown(character.get('backstory', 'N/A'))
 
-        if st.session_state.image_url:
-            st.image(
-        st.session_state.image_url,
-        caption="🧠 Generated Brainrot Character",
-        use_container_width=True
-    )
+    #     if st.session_state.image_url:
+    #         st.image(
+    #     st.session_state.image_url,
+    #     caption="🧠 Generated Brainrot Character",
+    #     use_container_width=True
+    # )
 
         
         # コピーボタン
@@ -168,5 +176,6 @@ st.markdown("""
 
 st.markdown("---")
 st.markdown("*Made with ❤️ using Streamlit and OpenAI*")
+
 
 
