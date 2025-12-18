@@ -35,47 +35,43 @@ if 'image_url' not in st.session_state:
 
 def generate_character_data():
     """
-    LLMを使用してキャラクター情報を生成します。
+    LLMを使用してキャラクター情報を生成します
     """
-system_prompt = (
-    "あなたは『Brainrot meme』風のキャラクターを生成するアーティストです。"
-    "シュールで混沌としており、少し不気味だがユーモラスなキャラクターを考えてください。"
-    "キャラクターは以下を必ずランダムに組み合わせます："
-    "・動物または昆虫"
-    "・無機物や機械"
-    "・異なる文化・時代・架空文明の要素"
-    "特定の国や文化（例：イタリア）に偏らないでください。"
-    "出力は必ずJSON形式で、キーは 'name', 'traits', 'backstory', 'image_prompt' としてください。"
-)
 
-    
-user_prompt = (
-    "1. 名前 (name): ミーム的で音の響きが変な名前（実在言語でなくてよい）\n"
-    "2. 特徴 (traits): 3〜4個。矛盾・不条理・異種融合を含める\n"
-    "3. 背景 (backstory): 非論理的で短い起源\n"
-    "4. 画像プロンプト (image_prompt): 英語。\n"
-    "Brainrot meme style, low resolution texture, uncanny eyes, chaotic fusion, vivid colors.\n"
-    "Do NOT reference real people.\n"
-)
+    system_prompt = (
+        "あなたは『Brainrot meme』風のキャラクターを生成するアーティストです。"
+        "シュールで混沌としており、少し不気味だがユーモラスなキャラクターを考えてください。"
+        "動物・無機物・文化・時代をランダムに組み合わせてください。"
+        "出力は必ずJSON形式で、キーは 'name', 'traits', 'backstory', 'image_prompt' としてください。"
+    )
 
+    user_prompt = (
+        "1. 名前 (name): ミーム的で音の響きが変な名前（実在言語でなくてよい）\n"
+        "2. 特徴 (traits): 3〜4個。矛盾・不条理・異種融合を含める\n"
+        "3. 背景 (backstory): 非論理的で短い起源\n"
+        "4. 画像プロンプト (image_prompt): 英語\n"
+        "Brainrot meme style, low resolution texture, uncanny eyes, chaotic fusion, vivid colors.\n"
+        "Do NOT reference real people.\n"
+    )
 
-try:
-    with st.spinner("✨ キャラクターを生成中..."):
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format={"type": "json_object"}
-        )
+    try:
+        with st.spinner("✨ キャラクターを生成中..."):
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                response_format={"type": "json_object"}
+            )
 
-        character_data = json.loads(response.choices[0].message.content)
-        return character_data
+            character_data = json.loads(response.choices[0].message.content)
+            return character_data
 
-except Exception as e:
-    st.error(f"❌ エラーが発生しました: {e}")
-    return None
+    except Exception as e:
+        st.error(f"❌ エラーが発生しました: {e}")
+        return None
+
 
 def generate_image(prompt):
     try:
@@ -172,4 +168,5 @@ st.markdown("""
 
 st.markdown("---")
 st.markdown("*Made with ❤️ using Streamlit and OpenAI*")
+
 
