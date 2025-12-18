@@ -59,24 +59,23 @@ user_prompt = (
 )
 
 
-    try:
-        with st.spinner("✨ キャラクターを生成中..."):
-            response = client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            
-            character_data = json.loads(response.choices[0].message.content)
-            return character_data
-        
-    except Exception as e:
-        st.error(f"❌ エラーが発生しました: {e}")
-        return None
+try:
+    with st.spinner("✨ キャラクターを生成中..."):
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
 
+        character_data = json.loads(response.choices[0].message.content)
+        return character_data
+
+except Exception as e:
+    st.error(f"❌ エラーが発生しました: {e}")
+    return None
 
 def generate_image(prompt):
     try:
@@ -90,6 +89,7 @@ def generate_image(prompt):
     except Exception as e:
         st.error(f"画像生成エラー: {e}")
         return None
+
 
 
 # メインのUI
@@ -172,3 +172,4 @@ st.markdown("""
 
 st.markdown("---")
 st.markdown("*Made with ❤️ using Streamlit and OpenAI*")
+
