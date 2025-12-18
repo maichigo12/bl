@@ -29,28 +29,34 @@ if 'character_data' not in st.session_state:
     st.session_state.character_data = None
 if 'image_prompt' not in st.session_state:
     st.session_state.image_prompt = None
+if 'image_url' not in st.session_state:
+    st.session_state.image_url = None
+
 
 def generate_character_data():
     """
     LLMを使用してキャラクター情報を生成します。
     """
-    system_prompt = (
-        "あなたは「ブレインロット」風のキャラクターを生成するクリエイターです。"
-        "シュールで混沌とした、少し不気味だけど面白いキャラクターを考えてください。"
-        "**ただし、キャラクターの要素は動物、日常品、他の文化の要素などもランダムに組み合わせてください。**"
-        "出力は必ずJSON形式で、キーは 'name', 'traits', 'backstory', 'image_prompt' としてください。"
-    )
+system_prompt = (
+    "あなたは『Brainrot meme』風のキャラクターを生成するアーティストです。"
+    "シュールで混沌としており、少し不気味だがユーモラスなキャラクターを考えてください。"
+    "キャラクターは以下を必ずランダムに組み合わせます："
+    "・動物または昆虫"
+    "・無機物や機械"
+    "・異なる文化・時代・架空文明の要素"
+    "特定の国や文化（例：イタリア）に偏らないでください。"
+    "出力は必ずJSON形式で、キーは 'name', 'traits', 'backstory', 'image_prompt' としてください。"
+)
 
     
-    user_prompt = (
-        "1. 名前 (name): イタリア語風で、ミーム的な響きがあるもの。"
-        "2. 特徴 (traits): 奇妙で矛盾した特徴を3〜4個、リスト形式で。"
-        "**特徴には、ランダムな動物、機械、または文化的な要素を一つ以上含めてください。**"
-        "3. 背景 (backstory): 短く、ばかげた、またはシュールな起源。"
-        "4. 画像プロンプト (image_prompt): DALL-E 3で画像を生成するための詳細な英語のプロンプト。"
-        "このプロンプトは、キャラクターの視覚的な要素を具体的に記述し、"
-        "「ブレインロット」のミームスタイル（奇妙な融合、不気味な目、鮮やかな色、低解像度風の質感など）を反映させてください。"
-    )
+user_prompt = (
+    "1. 名前 (name): ミーム的で音の響きが変な名前（実在言語でなくてよい）\n"
+    "2. 特徴 (traits): 3〜4個。矛盾・不条理・異種融合を含める\n"
+    "3. 背景 (backstory): 非論理的で短い起源\n"
+    "4. 画像プロンプト (image_prompt): 英語。\n"
+    "Brainrot meme style, low resolution texture, uncanny eyes, chaotic fusion, vivid colors.\n"
+    "Do NOT reference real people.\n"
+)
 
 
     try:
@@ -71,18 +77,40 @@ def generate_character_data():
         st.error(f"❌ エラーが発生しました: {e}")
         return None
 
+
+def generate_image(prompt):
+    try:
+        with st.spinner("🖼️ 画像を生成中..."):
+            result = client.images.generate(
+                model="gpt-image-1",
+                prompt=prompt,
+                size="1024x1024"
+            )
+            return result.data[0].url
+    except Exception as e:
+        st.error(f"画像生成エラー: {e}")
+        return None
+
+
 # メインのUI
 col1, col2 = st.columns([1, 1])
 
 with col1:
     st.subheader("🎲 キャラクター生成")
     
-    if st.button("🚀 新しいキャラクターを生成", use_container_width=True, key="generate_btn"):
-        character_data = generate_character_data()
-        if character_data:
-            st.session_state.character_data = character_data
-            st.session_state.image_prompt = character_data.get('image_prompt')
-            st.success("✅ キャラクター生成完了！")
+if st.button("🚀 新しいキャラクターを生成", use_container_width=True, key="generate_btn"):
+    character_data = generate_character_data()
+    if character_data:
+        st.session_state.character_data = character_data
+        
+        image_prompt = character_data.get("image_prompt", "")
+        st.session_state.image_prompt = image_prompt
+        
+        # ★ここで画像生成
+        st.session_state.image_url = generate_image(image_prompt)
+
+        st.success("✅ キャラクター生成完了！")
+
 
 with col2:
     st.subheader("📋 生成されたキャラクター")
@@ -102,6 +130,14 @@ with col2:
         
         st.markdown("**背景:**")
         st.markdown(character.get('backstory', 'N/A'))
+
+        if st.session_state.image_url:
+            st.image(
+        st.session_state.image_url,
+        caption="🧠 Generated Brainrot Character",
+        use_container_width=True
+    )
+
         
         # コピーボタン
         st.markdown("---")
@@ -136,4 +172,3 @@ st.markdown("""
 
 st.markdown("---")
 st.markdown("*Made with ❤️ using Streamlit and OpenAI*")
-
